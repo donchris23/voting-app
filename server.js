@@ -23,6 +23,7 @@ app.get('/', (req, res) => {
 
 // MySQL table creation and staff initialization
 const emails = [
+  'femi@gmail.com',
   'fsogunle@may-baker.com',
   'RMaleeq@may-baker.com',
   'MOni@may-baker.com',
@@ -224,7 +225,19 @@ const emails = [
 
 db.query("CREATE TABLE IF NOT EXISTS staff (email VARCHAR(255) PRIMARY KEY)", (err) => {
   if (err) throw err;
-  db.query("CREATE TABLE IF NOT EXISTS votes (email VARCHAR(255) PRIMARY KEY, data TEXT)", (err) => {
+  db.query(`CREATE TABLE IF NOT EXISTS votes (
+    email VARCHAR(255) PRIMARY KEY,
+    welfare VARCHAR(255),
+    trustee VARCHAR(255),
+    pro1 VARCHAR(255),
+    auditor VARCHAR(255),
+    treasurer VARCHAR(255),
+    financial_secretary VARCHAR(255),
+    ass_general_secretary VARCHAR(255),
+    general_secretary VARCHAR(255),
+    vice_chairman VARCHAR(255),
+    chairman VARCHAR(255)
+  )`, (err) => {
     if (err) throw err;
     if (emails.length > 0) {
       const values = emails.map(email => [email]);
@@ -248,19 +261,35 @@ app.post('/api/vote', (req, res) => {
       if (err) return res.status(500).json({ success: false, message: 'Database error.' });
       if (voteRows.length) return res.json({ success: false, message: 'You have already voted.' });
 
-      db.query('INSERT INTO votes(email, data) VALUES (?, ?)', [email, JSON.stringify(votes)], (err) => {
-        if (err) return res.status(500).json({ success: false, message: 'Failed to save vote.' });
-        return res.json({ success: true, message: 'Vote submitted successfully!' });
-      });
+      // Extract votes for each position
+      const {
+        welfare = null,
+        trustee = null,
+        pro1 = null,
+        auditor = null,
+        treasurer = null,
+        financial_secretary = null,
+        ass_general_secretary = null,
+        general_secretary = null,
+        vice_chairman = null,
+        chairman = null
+      } = votes;
+
+      db.query(
+        `INSERT INTO votes (
+          email, welfare, trustee, pro1, auditor, treasurer, financial_secretary, ass_general_secretary, general_secretary, vice_chairman, chairman
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [email, welfare, trustee, pro1, auditor, treasurer, financial_secretary, ass_general_secretary, general_secretary, vice_chairman, chairman],
+        (err) => {
+          if (err) return res.status(500).json({ success: false, message: 'Failed to save vote.' });
+          return res.json({ success: true, message: 'Vote submitted successfully!' });
+        }
+      );
     });
   });
 });
 
 app.get('/admin/delete-votes', (req, res) => {
-  // const { secret } = req.body;
-  // if (secret !== 'admin123') {
-  //   return res.status(401).send({ message: 'Unauthorized: Invalid secret key' });
-  // }
   db.query('DELETE FROM votes', (err) => {
     if (err) {
       console.error(err);
@@ -271,26 +300,34 @@ app.get('/admin/delete-votes', (req, res) => {
 });
 
 app.get('/admin/votes', (req, res) => {
-  db.query('SELECT email, data FROM votes', [], (err, rows) => {
+  db.query('SELECT * FROM votes', [], (err, rows) => {
     if (err) return res.status(500).json({ success: false, message: 'Failed to fetch votes.' });
-    const result = rows.map(row => ({
-      email: row.email,
-      votes: JSON.parse(row.data)
-    }));
-    res.json(result);
+    res.json(rows);
   });
 });
 
 app.get('/api/results', (req, res) => {
-  db.query('SELECT data FROM votes', [], (err, rows) => {
+  db.query('SELECT * FROM votes', [], (err, rows) => {
     if (err) return res.status(500).json({ success: false, message: 'Failed to fetch results.' });
-    const results = {};
-    rows.forEach(({ data }) => {
-      const vote = JSON.parse(data);
-      for (const [position, candidate] of Object.entries(vote)) {
-        if (!results[position]) results[position] = {};
-        results[position][candidate] = (results[position][candidate] || 0) + 1;
-      }
+    const results = {
+      welfare: {},
+      trustee: {},
+      pro1: {},
+      auditor: {},
+      treasurer: {},
+      financial_secretary: {},
+      ass_general_secretary: {},
+      general_secretary: {},
+      vice_chairman: {},
+      chairman: {}
+    };
+    rows.forEach(row => {
+      Object.keys(results).forEach(position => {
+        const candidate = row[position];
+        if (candidate) {
+          results[position][candidate] = (results[position][candidate] || 0) + 1;
+        }
+      });
     });
     res.json(results);
   });
