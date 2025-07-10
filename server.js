@@ -9,7 +9,8 @@ const db = mysql2.createConnection({
   host: 'centerbeam.proxy.rlwy.net',
   user: 'root',
   password: 'GDjCVKbuioLOIWQvdyAbVbOcksaGcwNU',
-  database: 'railway'
+  database: 'railway',
+  port: 19087
 });
 
 app.use(cors());

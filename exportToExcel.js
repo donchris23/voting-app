@@ -1,11 +1,12 @@
 const mysql2 = require('mysql2');
 const ExcelJS = require('exceljs');
 
-const db = new mysql2.createConnection({
-  host: 'localhost',
+const app = express();
+const db = mysql2.createConnection({
+  host: 'centerbeam.proxy.rlwy.net',
   user: 'root',
-  password: '',
-  database: 'voting_app'
+  password: 'GDjCVKbuioLOIWQvdyAbVbOcksaGcwNU',
+  database: 'railway'
 });
 
 const workbook = new ExcelJS.Workbook();
