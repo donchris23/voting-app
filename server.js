@@ -6,10 +6,10 @@ const path = require('path');
 
 const app = express();
 const db = mysql2.createConnection({
-  host: 'localhost',
+  host: 'centerbeam.proxy.rlwy.net',
   user: 'root',
-  password: '',
-  database: 'voting_app'
+  password: 'GDjCVKbuioLOIWQvdyAbVbOcksaGcwNU',
+  database: 'railway'
 });
 
 app.use(cors());
