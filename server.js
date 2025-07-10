@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views/index.html'));
 });
 
-db.serialize(() => {
+db.all(() => {
   db.run("CREATE TABLE IF NOT EXISTS staff (email TEXT PRIMARY KEY)");
   db.run("CREATE TABLE IF NOT EXISTS votes (email TEXT PRIMARY KEY, data TEXT)");
 
