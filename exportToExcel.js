@@ -1,7 +1,12 @@
-const sqlite3 = require('sqlite3').verbose();
+const mysql2 = require('mysql2');
 const ExcelJS = require('exceljs');
 
-const db = new sqlite3.Database('./db/database.sqlite');
+const db = new mysql2.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'voting_app'
+});
 
 const workbook = new ExcelJS.Workbook();
 const worksheet = workbook.addWorksheet('Votes');

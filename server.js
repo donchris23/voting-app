@@ -1,11 +1,16 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const sqlite3 = require('sqlite3').verbose();
+const mysql2 = require('mysql2');
 const path = require('path');
 
 const app = express();
-const db = new sqlite3.Database('./db/database.sqlite');
+const db = new mysql2.createConnection({
+  host: 'localhost',
+  user: 'root',
+  password: '',
+  database: 'voting_app'
+});
 
 app.use(cors());
 app.use(bodyParser.json());
