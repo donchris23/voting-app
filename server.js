@@ -264,12 +264,12 @@ app.get('/admin/votes', (req, res) => {
 });
 
 app.get('/admin/reset-staff', (req, res) => {
-  db.query('DELETE FROM staff', (err) => {
-    if (err) return res.status(500).send('Failed to clear staff');
+  db.query('DELETE FROM staff WHERE email NOT IN (?)', [emails], (err) => {
+    if (err) return res.status(500).send('Failed to remove old staff');
     const values = emails.map(email => [email]);
-    db.query('INSERT INTO staff(email) VALUES ?', [values], (err) => {
-      if (err) return res.status(500).send('Failed to re-insert staff');
-      res.send('Staff table reset and re-initialized');
+    db.query('INSERT IGNORE INTO staff(email) VALUES ?', [values], (err) => {
+      if (err) return res.status(500).send('Failed to insert new staff');
+      res.send('Staff table synchronized with emails array');
     });
   });
 });
