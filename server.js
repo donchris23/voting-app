@@ -263,6 +263,17 @@ app.get('/admin/votes', (req, res) => {
   });
 });
 
+app.get('/admin/reset-staff', (req, res) => {
+  db.query('DELETE FROM staff', (err) => {
+    if (err) return res.status(500).send('Failed to clear staff');
+    const values = emails.map(email => [email]);
+    db.query('INSERT INTO staff(email) VALUES ?', [values], (err) => {
+      if (err) return res.status(500).send('Failed to re-insert staff');
+      res.send('Staff table reset and re-initialized');
+    });
+  });
+});
+
 app.get('/api/results', (req, res) => {
   db.query('SELECT data FROM votes', [], (err, rows) => {
     if (err) return res.status(500).json({ success: false, message: 'Failed to fetch results.' });
